@@ -111,7 +111,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
 
         
         const decoded: DecodedToken | null = decodeProvidedToken(access_token);
-        const userRole = decoded?.role;// Use the role from the DecodedToken interface
+        const userRole = decoded?.role;
         console.log(  "Decoded token:", decoded);
         toast({
           title: "Logged in successfully!",
@@ -119,11 +119,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
         });
 
         if (userRole === "candidate") {
-          router.replace("/candidate-profile");
+          router.replace("/candidate-dashboard");
         } else if (userRole === "recruiter") {
-          router.replace("/recruiter-profile");
+          router.replace("/recruiter-dashboard");
         } else if (userRole === "admin") {
-          router.replace("/admin/dashboard");
+          router.replace("/admin");
         } else {
           router.replace("/dashboard"); 
         }

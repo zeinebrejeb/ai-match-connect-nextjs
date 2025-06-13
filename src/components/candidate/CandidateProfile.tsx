@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Edit, Save, Trash, Plus } from "lucide-react";
 import CVUpload from "./CVUpload"; 
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/context/AuthContext'; 
 
 
 interface Skill {
@@ -56,13 +57,14 @@ interface CandidateData extends ProfileFormData {
 }
 
 interface CandidateProfileProps {
-
   initialData?: CandidateData; 
-  candidateId?: string; 
 }
+const STORAGE_KEY = "candidateProfileData";
 
-const CandidateProfile: React.FC<CandidateProfileProps> = ({ initialData, candidateId }) => {
+const CandidateProfile: React.FC<CandidateProfileProps> = ({ initialData}) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const candidateId = user?.id;
   const [isEditing, setIsEditing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true); 
   const [isSaving, setIsSaving] = useState(false); 
@@ -83,48 +85,59 @@ const CandidateProfile: React.FC<CandidateProfileProps> = ({ initialData, candid
 
   const [newSkill, setNewSkill] = useState({ name: "", level: 50 });
 
-  useEffect(() => {
-
-    if (!initialData && candidateId) {
+ useEffect(() => {
+    if (!initialData && candidateId && user) {
       const fetchData = async () => {
         setIsLoadingData(true);
         try {
-          // Example API call
-          // const response = await fetch(`/api/candidates/${candidateId}`);
-          // if (!response.ok) throw new Error("Failed to fetch profile data");
-          // const data: CandidateData = await response.json();
-
-          // --- Replace with mock data for now ---
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate fetch delay
-          const data: CandidateData = { // Mock fetched data structure
-                firstName: "Jane",
-                lastName: "Smith",
-                email: "jane.smith@example.com",
-                phone: "+1 (555) 987-6543",
-                location: "New York, NY",
-                title: "Software Engineer",
-                bio: "Passionate Software Engineer specializing in frontend technologies.",
-                avatarUrl: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?&auto=format&fit=facearea&facepad=3&w=300&h=300&q=80", // Example dynamic URL
-                skills: [ { id: 's1', name: "React", level: 95 }, { id: 's2', name: "Next.js", level: 90 } ],
-                experiences: [ { id: 'e1', company: "Innovate LLC", title: "Frontend Dev", startDate: "2021", endDate: "Present", description: "Building cool UIs." } ],
-                education: [ { id: 'ed1', institution: "State University", degree: "BSc CompSci", startDate: "2017", endDate: "2021", description: "Studied hard." } ]
-          };
-          // --- End Replace ---
-
-          setFormData({
-             firstName: data.firstName,
-             lastName: data.lastName,
-             email: data.email,
-             phone: data.phone,
-             location: data.location,
-             title: data.title,
-             bio: data.bio,
-             avatarUrl: data.avatarUrl,
-          });
-          setSkills(data.skills || []);
-          setExperiences(data.experiences || []);
-          setEducation(data.education || []);
-
+          // Try load from localStorage first
+          const savedData = localStorage.getItem(STORAGE_KEY);
+          if (savedData) {
+            const parsed: CandidateData = JSON.parse(savedData);
+            setFormData({
+              firstName: parsed.firstName,
+              lastName: parsed.lastName,
+              email: parsed.email,
+              phone: parsed.phone,
+              location: parsed.location,
+              title: parsed.title,
+              bio: parsed.bio,
+              avatarUrl: parsed.avatarUrl || "",
+            });
+            setSkills(parsed.skills || []);
+            setExperiences(parsed.experiences || []);
+            setEducation(parsed.education || []);
+            toast({ title: "Profile loaded from local storage." });
+          } else {
+            // No saved data — use user data (mock)
+            const data: CandidateData = {
+              firstName: user.first_name,
+              lastName: user.last_name,
+              email: user.email,
+              phone: "",
+              location: "",
+              title: "",
+              bio: "",
+              avatarUrl: "",
+              skills: [],
+              experiences: [],
+              education: [],
+            };
+            setFormData({
+              firstName: data.firstName,
+              lastName: data.lastName,
+              email: data.email,
+              phone: data.phone,
+              location: data.location,
+              title: data.title,
+              bio: data.bio,
+              avatarUrl: data.avatarUrl,
+            });
+            setSkills(data.skills || []);
+            setExperiences(data.experiences || []);
+            setEducation(data.education || []);
+          }
+          console.log("Candidate ID:", candidateId);
         } catch (error) {
           console.error("Failed to fetch profile:", error);
           toast({ title: "Error", description: "Could not load profile data.", variant: "destructive" });
@@ -134,11 +147,9 @@ const CandidateProfile: React.FC<CandidateProfileProps> = ({ initialData, candid
       };
       fetchData();
     } else {
-
-        setIsLoadingData(false);
+      setIsLoadingData(false);
     }
-
-  }, [candidateId, initialData, toast]);
+  }, [candidateId, initialData, toast, user]);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -209,15 +220,18 @@ const CandidateProfile: React.FC<CandidateProfileProps> = ({ initialData, candid
   };
 
   // --- TODO: Implement API call for saving profile ---
-  const saveProfile = async () => {
+ const saveProfile = async () => {
     setIsSaving(true);
     try {
-        // Prepare data to save (e.g., only changed fields or everything)
-        const dataToSave = {
-            ...formData,
-            skills, // Send updated skills array
-            // Send updated experiences, education if they become editable
-        };
+      const dataToSave: CandidateData = {
+        ...formData,
+        skills,
+        experiences,
+        education,
+      };
+
+      // Save to localStorage for persistence
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
 
         // const response = await fetch(`/api/candidates/${candidateId}`, {
         //     method: 'PUT', // or PATCH

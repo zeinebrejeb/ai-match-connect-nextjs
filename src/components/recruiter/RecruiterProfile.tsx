@@ -470,7 +470,7 @@ const RecruiterProfilePage = () => {
                 </div>
                 
                  <Button asChild className="flex items-center gap-2">
-                    <Link href="/post-job"> 
+                    <Link href="/job-postings"> 
                         <Plus className="h-4 w-4" /> Post New Job
                     </Link>
                 </Button>

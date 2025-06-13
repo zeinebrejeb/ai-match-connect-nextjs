@@ -1,4 +1,3 @@
-// src/services/resumeService.ts (or similar)
 import api from '@/lib/api'; // Your configured Axios instance
 
 // Define the expected response after uploading a resume (adjust as per your backend)

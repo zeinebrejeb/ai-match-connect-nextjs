@@ -11,6 +11,8 @@ import { BriefcaseIcon, Search, MapPin, Clock, Filter, ArrowUpDown, ChevronDown,
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage,AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link"; 
+import { useAuth } from '@/context/AuthContext'; 
+
 
 interface Job {
   id: number; 
@@ -82,6 +84,7 @@ const JobsPage = () => {
   const [jobType, setJobType] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState([50, 150]); 
   const [onlyMatches, setOnlyMatches] = useState(false);
+  const { role } = useAuth();
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -411,15 +414,18 @@ const JobsPage = () => {
                   </CardContent>
                   <CardFooter className="bg-gray-50 dark:bg-gray-800/50 p-4 flex justify-between items-center border-t dark:border-gray-700">
                     <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{job.salary}</p>
-                    <Button size="sm" onClick={() => handleApplyClick(job.id)}>Apply Now</Button>
-                  </CardFooter>
+                     {role === 'candidate' && (
+                  <Button asChild>
+                    <Link href={`/jobs/${job.id}/apply`}>Apply Now</Link>
+                  </Button>
+                )}         
+                     </CardFooter>
                 </Card>
               ))}
             </div>
           )}
         </div>
       </main>
-      {/* <Footer /> */}
     </div>
   );
 };

@@ -82,9 +82,13 @@ const Navbar = () => {
 
           
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-600 hover:text-brand-600 dark:text-gray-300 dark:hover:text-white">Home</Link>
+            {(!isAuthenticated ) && (
+              <Link href="/" className="text-gray-600 hover:text-brand-600 dark:text-gray-300 dark:hover:text-white">Home</Link>
+            )}    
             <Link href="/jobs" className="text-gray-600 hover:text-brand-600 dark:text-gray-300 dark:hover:text-white">Jobs</Link>
+             {(!isAuthenticated ) && (
             <Link href="/about" className="text-gray-600 hover:text-brand-600 dark:text-gray-300 dark:hover:text-white">About</Link>
+          )}    
 
             {isAuthenticated ? ( 
               <>
@@ -99,7 +103,7 @@ const Navbar = () => {
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuLabel>My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild><Link href="/dashboard" className="flex items-center gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/candidate-dashboard" className="flex items-center gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</Link></DropdownMenuItem>
                       <DropdownMenuItem asChild><Link href="/candidate-profile" className="flex items-center gap-2"><User className="h-4 w-4" />View Profile</Link></DropdownMenuItem>
                       <DropdownMenuItem asChild><Link href="/candidate-profile?edit=true" className="flex items-center gap-2"><User className="h-4 w-4" />Edit Profile</Link></DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -120,6 +124,7 @@ const Navbar = () => {
                       <DropdownMenuLabel>My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild><Link href="/recruiter-profile" className="flex items-center gap-2"><User className="h-4 w-4" />Profile</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/recruiter-dashboard" className="flex items-center gap-2"><LayoutDashboard className="h-4 w-4" />Dahsboard</Link></DropdownMenuItem>
                       <DropdownMenuItem asChild><Link href="/post-job" className="flex items-center gap-2"><Plus className="h-4 w-4" />Post Job</Link></DropdownMenuItem>
                       <DropdownMenuItem asChild><Link href="/recruiter-ai-search" className="flex items-center gap-2"><Search className="h-4 w-4" />AI Search</Link></DropdownMenuItem>
                       <DropdownMenuSeparator />
